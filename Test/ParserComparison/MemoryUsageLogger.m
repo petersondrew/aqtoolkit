@@ -78,7 +78,6 @@ void LogHostMemoryUsage( void )
 	[str appendFormat: @"Free =     %0.2f %%\n", free * 100.0];
 	
 	NSLog( @"Memory Usage:\n%@", str );
-	[str release];
 }
 
 mach_vm_size_t GetProcessMemoryUsage( void )

@@ -41,7 +41,7 @@
 #import "AQXMLParser.h"
 #import "AQXMLParserInternal.h"
 
-#import "NSStream+HTTPMessage.h"
+//#import "NSStream+HTTPMessage.h"
 
 #import <libxml/parser.h>
 #import <libxml/HTMLparser.h>
@@ -123,21 +123,21 @@ static inline NSString * AttributeTypeString( int type )
 
 static int __isStandalone( void * ctx )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	return ( p->myDoc->standalone );
 }
 
 static int __hasInternalSubset2( void * ctx )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	return ( p->myDoc->intSubset == NULL ? 0 : 1 );
 }
 
 static int __hasExternalSubset2( void * ctx )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	return ( p->myDoc->extSubset == NULL ? 0 : 1 );
 }
@@ -145,7 +145,7 @@ static int __hasExternalSubset2( void * ctx )
 static void __internalSubset2( void * ctx, const xmlChar * name, const xmlChar * ElementID,
 							   const xmlChar * SystemID )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	xmlSAX2InternalSubset( p, name, ElementID, SystemID );
 }
@@ -153,21 +153,21 @@ static void __internalSubset2( void * ctx, const xmlChar * name, const xmlChar *
 static void __externalSubset2( void * ctx, const xmlChar * name, const xmlChar * ExternalID,
 							   const xmlChar * SystemID )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	xmlSAX2ExternalSubset( p, name, ExternalID, SystemID );
 }
 
 static xmlParserInputPtr __resolveEntity( void * ctx, const xmlChar * publicId, const xmlChar * systemId )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	return ( xmlSAX2ResolveEntity(p, publicId, systemId) );
 }
 
 static void __characters( void * ctx, const xmlChar * ch, int len )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	
 	if ( (long)(p->_private) == 1 )
@@ -184,12 +184,11 @@ static void __characters( void * ctx, const xmlChar * ch, int len )
 														   length: len
 														 encoding: NSUTF8StringEncoding];
 	[delegate parser: parser foundCharacters: str];
-	[str release];
 }
 
 static xmlEntityPtr __getParameterEntity( void * ctx, const xmlChar * name )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	return ( xmlSAX2GetParameterEntity(p, name) );
 }
@@ -197,7 +196,7 @@ static xmlEntityPtr __getParameterEntity( void * ctx, const xmlChar * name )
 static void __entityDecl( void * ctx, const xmlChar * name, int type, const xmlChar * publicId,
 						  const xmlChar * systemId, xmlChar * content )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
@@ -220,20 +219,14 @@ static void __entityDecl( void * ctx, const xmlChar * name, int type, const xmlC
 			
 			[delegate parser: parser foundExternalEntityDeclarationWithName: nameStr
 					publicID: publicIDStr systemID: systemIDStr];
-			
-			[publicIDStr release];
-			[systemIDStr release];
 		}
 	}
-	
-	[contentStr release];
-	[nameStr release];
 }
 
 static void __attributeDecl( void * ctx, const xmlChar * elem, const xmlChar * fullname, int type, int def,
 							 const xmlChar * defaultValue, xmlEnumerationPtr tree )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
 	if ( [delegate respondsToSelector: @selector(parser:foundAttributeDeclarationWithName:forElement:type:defaultValue:)] == NO )
@@ -245,15 +238,11 @@ static void __attributeDecl( void * ctx, const xmlChar * elem, const xmlChar * f
 	
 	[delegate parser: parser foundAttributeDeclarationWithName: fullnameStr forElement: elemStr
 				type: AttributeTypeString(type) defaultValue: defaultStr];
-	
-	[elemStr release];
-	[fullnameStr release];
-	[defaultStr release];
 }
 
 static void __elementDecl( void * ctx, const xmlChar * name, int type, xmlElementContentPtr content )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
 	if ( [delegate respondsToSelector: @selector(parser:foundElementDeclarationWithName:model:)] == NO )
@@ -261,12 +250,11 @@ static void __elementDecl( void * ctx, const xmlChar * name, int type, xmlElemen
 	
 	NSString * nameStr = NSStringFromXmlChar(name);
 	[delegate parser: parser foundElementDeclarationWithName: nameStr model: @""];
-	[nameStr release];
 }
 
 static void __notationDecl( void * ctx, const xmlChar * name, const xmlChar * publicId, const xmlChar * systemId )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
 	if ( [delegate respondsToSelector: @selector(parser:foundNotationDeclarationWithName:publicID:systemID:)] == NO )
@@ -278,16 +266,12 @@ static void __notationDecl( void * ctx, const xmlChar * name, const xmlChar * pu
 	
 	[delegate parser: parser foundNotationDeclarationWithName: nameStr
 			publicID: publicIDStr systemID: systemIDStr];
-	
-	[nameStr release];
-	[publicIDStr release];
-	[systemIDStr release];
 }
 
 static void __unparsedEntityDecl( void * ctx, const xmlChar * name, const xmlChar * publicId,
 								  const xmlChar * systemId, const xmlChar * notationName )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
@@ -303,16 +287,11 @@ static void __unparsedEntityDecl( void * ctx, const xmlChar * name, const xmlCha
 	
 	[delegate parser: parser foundUnparsedEntityDeclarationWithName: nameStr
 			publicID: publicIDStr systemID: systemIDStr notationName: notationNameStr];
-	
-	[nameStr release];
-	[publicIDStr release];
-	[systemIDStr release];
-	[notationNameStr release];
 }
 
 static void __startDocument( void * ctx )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
@@ -333,7 +312,7 @@ static void __startDocument( void * ctx )
 
 static void __endDocument( void * ctx )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
 	if ( [delegate respondsToSelector: @selector(parserDidEndDocument:)] == NO )
@@ -344,7 +323,7 @@ static void __endDocument( void * ctx )
 
 static void __endElementNS( void * ctx, const xmlChar * localname, const xmlChar * prefix, const xmlChar * URI )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
 	NSString * prefixStr = nil;
@@ -358,7 +337,7 @@ static void __endElementNS( void * ctx, const xmlChar * localname, const xmlChar
 	if ( [prefixStr length] != 0 )
 		completeStr = [[NSString alloc] initWithFormat: @"%@:%@", prefixStr, localnameStr];
 	else
-		completeStr = [localnameStr retain];
+		completeStr = localnameStr;
 	
 	NSString * uriStr = NSStringFromXmlChar(URI);
 	
@@ -380,16 +359,11 @@ static void __endElementNS( void * ctx, const xmlChar * localname, const xmlChar
 	}
 	
 	[parser _popNamespaces];
-	
-	[prefixStr release];
-	[localnameStr release];
-    [completeStr release];
-	[uriStr release];
 }
 
 static void __processingInstruction( void * ctx, const xmlChar * target, const xmlChar * data )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
 	if ( [delegate respondsToSelector: @selector(parser:foundProcessingInstructionWithTarget:data:)] == NO )
@@ -399,14 +373,11 @@ static void __processingInstruction( void * ctx, const xmlChar * target, const x
 	NSString * dataStr = NSStringFromXmlChar(data);
 	
 	[delegate parser: parser foundProcessingInstructionWithTarget: targetStr data: dataStr];
-	
-	[targetStr release];
-	[dataStr release];
 }
 
 static void __cdataBlock( void * ctx, const xmlChar * value, int len )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
 	if ( [delegate respondsToSelector: @selector(parser:foundCDATA:)] == NO )
@@ -414,12 +385,11 @@ static void __cdataBlock( void * ctx, const xmlChar * value, int len )
 	
 	NSData * data = [[NSData allocWithZone: nil] initWithBytes: value length: len];
 	[delegate parser: parser foundCDATA: data];
-	[data release];
 }
 
 static void __comment( void * ctx, const xmlChar * value )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
 	if ( [delegate respondsToSelector: @selector(parser:foundComment:)] == NO )
@@ -427,12 +397,11 @@ static void __comment( void * ctx, const xmlChar * value )
 	
 	NSString * commentStr = NSStringFromXmlChar(value);
 	[delegate parser: parser foundComment: commentStr];
-	[commentStr release];
 }
 
 static void __errorCallback( void * ctx, const char * msg, ... )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
@@ -446,7 +415,7 @@ static void __errorCallback( void * ctx, const char * msg, ... )
 
 static void __structuredErrorFunc( void * ctx, xmlErrorPtr errorData )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	_AQXMLParserInternal * info = [parser _info];
 	
@@ -461,7 +430,7 @@ static void __structuredErrorFunc( void * ctx, xmlErrorPtr errorData )
 
 static xmlEntityPtr __getEntity( void * ctx, const xmlChar * name )
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	xmlParserCtxtPtr p = [parser _xmlParserContext];
 	id<AQXMLParserDelegate> delegate = parser.delegate;
 	
@@ -472,7 +441,7 @@ static xmlEntityPtr __getEntity( void * ctx, const xmlChar * name )
 	entity = xmlSAX2GetEntity( p, name );
 	if ( entity != NULL )
 	{
-		if ( p->instate & XML_PARSER_MISC|XML_PARSER_PI|XML_PARSER_DTD )
+		if ( (p->instate & XML_PARSER_MISC)|XML_PARSER_PI|XML_PARSER_DTD )
 			p->_private = (void *) 1;
 		return ( entity );
 	}
@@ -483,7 +452,6 @@ static xmlEntityPtr __getEntity( void * ctx, const xmlChar * name )
 	NSString * nameStr = NSStringFromXmlChar(name);
 	
 	NSData * data = [delegate parser: parser resolveExternalEntityName: nameStr systemID: nil];
-    [nameStr release];
 	
     if ( data == nil )
 		return ( NULL );
@@ -495,7 +463,6 @@ static xmlEntityPtr __getEntity( void * ctx, const xmlChar * name )
 	NSString * str = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
 	const char * ch = [str UTF8String];
 	__characters( ctx, (const xmlChar *)ch, strlen(ch) );
-	[str release];
 	
 	return ( NULL );
 }
@@ -504,7 +471,7 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 							 const xmlChar *URI, int nb_namespaces, const xmlChar **namespaces,
 							 int nb_attributes, int nb_defaulted, const xmlChar **attributes)
 {
-	AQXMLParser * parser = (AQXMLParser *) ctx;
+	AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = [parser delegate];
 	
 	BOOL processNS = [parser shouldProcessNamespaces];
@@ -517,7 +484,7 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 	if ( [prefixStr length] != 0 )
 		completeStr = [[NSString alloc] initWithFormat: @"%@:%@", prefixStr, localnameStr];
 	else
-		completeStr = [localnameStr retain];
+		completeStr = localnameStr;
 	
 	NSString * uriStr = nil;
 	if ( processNS )
@@ -553,15 +520,10 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 		
 		[nsDict setObject: val forKey: completeStr];
 		[attrDict setObject: val forKey: qualifiedStr];
-		
-		[namespaceStr release];
-		[qualifiedStr release];
-		[val release];
 	}
 	
 	if ( reportNS )
 		[parser _pushNamespaces: nsDict];
-	[nsDict release];
 	
 	for ( i = 0; i < (nb_attributes * 5); i += 5 )
 	{
@@ -578,9 +540,7 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 		if ( [attrPrefix length] != 0 )
 			attrQualified = [[NSString alloc] initWithFormat: @"%@:%@", attrPrefix, attrLocalName];
 		else
-			attrQualified = [attrLocalName retain];
-		
-		[attrPrefix release];
+			attrQualified = attrLocalName;
 		
 		NSString * attrValue = @"";
 		if ( (attributes[i+3] != NULL) && (attributes[i+4] != NULL) )
@@ -592,10 +552,6 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 		}
 		
 		[attrDict setObject: attrValue forKey: attrQualified];
-		
-        [attrLocalName release];
-		[attrQualified release];
-		[attrValue release];
 	}
 	
 	if ( [delegate respondsToSelector: @selector(parser:didStartElement:namespaceURI:qualifiedName:attributes:)] )
@@ -606,17 +562,11 @@ static void __startElementNS( void * ctx, const xmlChar *localname, const xmlCha
 		   qualifiedName: completeStr
 			  attributes: attrDict];
 	}
-	
-	[localnameStr release];
-	[prefixStr release];
-	[uriStr release];
-	[completeStr release];
-	[attrDict release];
 }
 
 static void __startElement( void * ctx, const xmlChar * name, const xmlChar ** attrs )
 {
-    AQXMLParser * parser = (AQXMLParser *) ctx;
+    AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = [parser delegate];
     
     if ( [delegate respondsToSelector: @selector(parser:didStartElement:namespaceURI:qualifiedName:attributes:)] == NO )
@@ -637,9 +587,6 @@ static void __startElement( void * ctx, const xmlChar * name, const xmlChar ** a
             
             if ( (keyStr != nil) && (valueStr != nil) )
                 [attrDict setObject: valueStr forKey: keyStr];
-            
-            [keyStr release];
-            [valueStr release];
         }
     }
     
@@ -648,14 +595,11 @@ static void __startElement( void * ctx, const xmlChar * name, const xmlChar ** a
         namespaceURI: nil
        qualifiedName: nil
           attributes: attrDict];
-    
-    [nameStr release];
-    [attrDict release];
 }
 
 static void __endElement( void * ctx, const xmlChar * name )
 {
-    AQXMLParser * parser = (AQXMLParser *) ctx;
+    AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = [parser delegate];
     
     if ( [delegate respondsToSelector: @selector(parser:didEndElement:namespaceURI:qualifiedName:)] == NO )
@@ -664,12 +608,11 @@ static void __endElement( void * ctx, const xmlChar * name )
     NSString * nameStr = NSStringFromXmlChar(name);
     
     [delegate parser: parser didEndElement: nameStr namespaceURI: nil qualifiedName: nil];
-    [nameStr release];
 }
 
 static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 {
-    AQXMLParser * parser = (AQXMLParser *) ctx;
+    AQXMLParser * parser = (__bridge AQXMLParser *) ctx;
 	id<AQXMLParserDelegate> delegate = [parser delegate];
     
     if ( [delegate respondsToSelector: @selector(parser:foundIgnorableWhitespace:)] == NO )
@@ -679,7 +622,6 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 														   length: len
 														 encoding: NSUTF8StringEncoding];
 	[delegate parser: parser foundCharacters: str];
-	[str release];
 }
 
 #pragma mark -
@@ -689,6 +631,11 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 @synthesize delegate=_delegate;
 @synthesize progressDelegate=_progressDelegate;
 
+- (void)setExpectedLength:(float)expectedLength
+{
+    _internal->expectedDataLength = expectedLength;
+}
+
 - (id) initWithStream: (NSInputStream *) stream
 {
 	if ( [super init] == nil )
@@ -696,14 +643,14 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 	
 	_internal = [[_AQXMLParserInternal alloc] init];
 #if TARGET_OS_IPHONE
-	_internal->saxHandler = NSZoneMalloc( [self zone], sizeof(struct _xmlSAXHandler) );
+	_internal->saxHandler = NSZoneMalloc( NSDefaultMallocZone(), sizeof(struct _xmlSAXHandler) );
 #else
 	_internal->saxHandler = NSAllocateCollectable( sizeof(struct _xmlSAXHandler), 0 );
 #endif
 	_internal->parserContext = NULL;
 	_internal->error = nil;
 	
-	_stream = [stream retain];
+	_stream = stream;
     if ( _internal->expectedDataLength != 0.0 )
         [self _setupExpectedLength];
 	
@@ -721,15 +668,11 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
     NSInputStream * stream = [[NSInputStream alloc] initWithData: data];
     id result = [self initWithStream: stream];
     _internal->expectedDataLength = (float) [data length];
-    [stream release];
     return ( result );
 }
 
 - (void) dealloc
 {
-	[_internal->error release];
-	[_internal->namespaces release];
-	[_internal->debugOutputStream release];
 	NSZoneFree( nil, _internal->saxHandler );
 	
 	if ( _internal->parserContext != NULL )
@@ -746,11 +689,6 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
             xmlFreeParserCtxt( _internal->parserContext );
         }
 	}
-	
-	[_internal release];
-	[_stream release];
-	
-	[super dealloc];
 }
 
 - (void) finalize
@@ -791,7 +729,6 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 	else if ( _internal->debugOutputStream != nil )
 	{
 		[_internal->debugOutputStream close];
-		[_internal->debugOutputStream release];
 		_internal->debugOutputStream = nil;
 	}
 }
@@ -880,10 +817,8 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 	
 	while ( _streamComplete == NO )
 	{
-		NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 		[[NSRunLoop currentRunLoop] runMode: AQXMLParserParsingRunLoopMode
                                  beforeDate: [NSDate dateWithTimeIntervalSinceNow: 1.0]];
-		[pool drain];
 	}
 	
 	_internal->waitingRunLoop = nil;
@@ -900,7 +835,6 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 		// DO NOT COMMENT OUT THIS LINE!!!!!!!!
 		// NO, REALLY--- STOP DOING IT!!!!!
 		NSLog( @"Response:\n%@", str );
-		[str release];
 		[_internal->debugOutputStream close];
 	}
 	
@@ -957,7 +891,7 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 			
 		case NSStreamEventErrorOccurred:
 		{
-			_internal->error = [[input streamError] retain];
+			_internal->error = [input streamError];
 			if ( [_delegate respondsToSelector: @selector(parser:parseErrorOccurred:)] )
 				[_delegate parser: self parseErrorOccurred: _internal->error];
 			[self _setStreamComplete: NO];
@@ -976,7 +910,6 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 				// DO NOT COMMENT OUT THIS LINE!!!!!!!!
 				// NO, REALLY--- STOP DOING IT!!!!!
 				NSLog( @"Response:\n%@", str );
-				[str release];
 				[_internal->debugOutputStream close];
 			}
 			
@@ -1007,9 +940,11 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 - (void) abortParsing
 {
 	_internal->delegateAborted = YES;
-	if ( _internal->parserContext != NULL )
-		xmlStopParser( _internal->parserContext );
-    
+    // If we run synchronously on another thread via GCD, this causes
+    // EXC_BAD_ACCESS when aborting parsing
+//	if ( _internal->parserContext != NULL )
+//		xmlStopParser( _internal->parserContext );
+//    
 	[self _setStreamComplete: NO];  // must tell any async delegates that we're done parsing
 	
 	// if there's no async delegate (i.e. if we are parsing synchronously) then explicitly wake the runloop
@@ -1020,7 +955,7 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 
 - (NSError *) parserError
 {
-	return ( [[_internal->error retain] autorelease] );
+	return ( _internal->error );
 }
 
 @end
@@ -1057,15 +992,15 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 
 @implementation AQXMLParser (AQXMLParserHTTPStreamAdditions)
 
-- (HTTPMessage *) finalRequest
-{
-	return ( [_stream finalRequestMessage] );
-}
-
-- (HTTPMessage *) finalResponse
-{
-	return ( [_stream responseMessageHeader] );
-}
+//- (HTTPMessage *) finalRequest
+//{
+//	return ( [_stream finalRequestMessage] );
+//}
+//
+//- (HTTPMessage *) finalResponse
+//{
+//	return ( [_stream responseMessageHeader] );
+//}
 
 @end
 
@@ -1074,7 +1009,6 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 
 - (void) _setParserError: (int) err
 {
-	[_internal->error release];
 	_internal->error = [[NSError alloc] initWithDomain: NSXMLParserErrorDomain
 												  code: err
 											  userInfo: nil];
@@ -1161,7 +1095,7 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 	p->processingInstruction = __processingInstruction;
 	p->warning = NULL;
 	p->error = __errorCallback;
-	xmlSetStructuredErrorFunc( self, __structuredErrorFunc );
+	xmlSetStructuredErrorFunc( objc_unretainedPointer(self), __structuredErrorFunc );
 	p->getParameterEntity = __getParameterEntity;
 	p->cdataBlock = __cdataBlock;
 	p->comment = __comment;
@@ -1178,7 +1112,7 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
         saxPtr->startElement = __startElement;
         saxPtr->endElement = __endElement;
         
-        _internal->parserContext = htmlCreatePushParserCtxt( saxPtr, self,
+        _internal->parserContext = htmlCreatePushParserCtxt( saxPtr, objc_unretainedPointer(self),
                                                              (const char *)(length > 0 ? buf : NULL),
                                                              length, NULL, XML_CHAR_ENCODING_UTF8 );
         
@@ -1186,7 +1120,7 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
     }
     else
     {
-        _internal->parserContext = xmlCreatePushParserCtxt( _internal.xmlSaxHandler, self,
+        _internal->parserContext = xmlCreatePushParserCtxt( _internal.xmlSaxHandler, objc_unretainedPointer(self),
                                                            (const char *)(length > 0 ? buf : NULL),
                                                            length, NULL );
     
@@ -1220,8 +1154,6 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 			NSData * data = [[NSData alloc] initWithBytesNoCopy: (void *)bytes length: length freeWhenDone: NO];
 			NSString * str = [[NSString alloc] initWithData: data encoding: NSUTF8StringEncoding];
 			NSLog( @"Error %d in bytes: %@ (str: %@)", err, data, str );
-			[str release];
-			[data release];
 			
             [self _setParserError: err];
             [self _setStreamComplete: NO];
@@ -1231,8 +1163,8 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
     if ( _progressDelegate != nil )
     {
         _internal->currentLength += (float) length;
-        //[_progressDelegate parser: self
-        //           updateProgress: (_internal->currentLength / _internal->expectedDataLength)];
+        [_progressDelegate parser: self
+                   updateProgress: (_internal->currentLength / _internal->expectedDataLength)];
     }
 }
 
@@ -1263,7 +1195,8 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 				case 4:
 					[invoc setArgument: &parsedOK atIndex: 3];
 				case 3:
-					[invoc setArgument: &self atIndex: 2];
+					//[invoc setArgument: &self atIndex: 2];
+                    [invoc setArgument:objc_unretainedPointer(self) atIndex:2];
 					break;
 			}
             
@@ -1279,13 +1212,13 @@ static void __ignorableWhitespace( void * ctx, const xmlChar * ch, int len )
 
 - (void) _setupExpectedLength
 {
-    CFHTTPMessageRef msg = (CFHTTPMessageRef) [_stream propertyForKey: (NSString *)kCFStreamPropertyHTTPResponseHeader];
+    CFHTTPMessageRef msg = (__bridge CFHTTPMessageRef) [_stream propertyForKey: (NSString *)kCFStreamPropertyHTTPResponseHeader];
     if ( msg != NULL )
     {
         CFStringRef str = CFHTTPMessageCopyHeaderFieldValue( msg, CFSTR("Content-Length") );
         if ( str != NULL )
         {
-            _internal->expectedDataLength = [(NSString *)str floatValue];
+            _internal->expectedDataLength = [(__bridge NSString *)str floatValue];
             CFRelease( str );
         }
         return;

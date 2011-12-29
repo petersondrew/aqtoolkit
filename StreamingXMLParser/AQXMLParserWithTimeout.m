@@ -22,8 +22,6 @@ const NSTimeInterval KBDefaultXMLParserTimeout = 45.0;
 - (void) dealloc
 {
 	[_timeoutTimer invalidate];
-	[_timeoutTimer release];
-	[super dealloc];
 }
 
 - (void) setTimeout: (NSTimeInterval) aTimeout
@@ -36,7 +34,6 @@ const NSTimeInterval KBDefaultXMLParserTimeout = 45.0;
 	if ( _timeoutInterval == 0.0 )
 	{
 		[_timeoutTimer invalidate];
-		[_timeoutTimer release];
 		_timeoutTimer = nil;
 		return;
 	}

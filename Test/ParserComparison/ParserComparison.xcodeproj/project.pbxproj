@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 45;
+	objectVersion = 46;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -12,6 +12,7 @@
 		388BDF1B0F8AC591004A22FD /* AQXMLParserDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 388BDF1A0F8AC591004A22FD /* AQXMLParserDelegate.m */; };
 		388BDFA90F8ACD09004A22FD /* libxml2.dylib in Frameworks */ = {isa = PBXBuildFile; fileRef = 388BDFA80F8ACD09004A22FD /* libxml2.dylib */; };
 		388BDFBD0F8ACDF8004A22FD /* CoreServices.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 388BDFBC0F8ACDF8004A22FD /* CoreServices.framework */; };
+		3AD5D1FE13F46742002E5B59 /* AQXMLParserInternal.m in Sources */ = {isa = PBXBuildFile; fileRef = 3AD5D1FD13F46742002E5B59 /* AQXMLParserInternal.m */; };
 		8DD76F9A0486AA7600D96B5E /* ParserComparison.m in Sources */ = {isa = PBXBuildFile; fileRef = 08FB7796FE84155DC02AAC07 /* ParserComparison.m */; settings = {ATTRIBUTES = (); }; };
 		8DD76F9C0486AA7600D96B5E /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 08FB779EFE84155DC02AAC07 /* Foundation.framework */; };
 		8DD76F9F0486AA7600D96B5E /* ParserComparison.1 in CopyFiles */ = {isa = PBXBuildFile; fileRef = C6859EA3029092ED04C91782 /* ParserComparison.1 */; };
@@ -43,6 +44,8 @@
 		388BDF1A0F8AC591004A22FD /* AQXMLParserDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AQXMLParserDelegate.m; sourceTree = "<group>"; };
 		388BDFA80F8ACD09004A22FD /* libxml2.dylib */ = {isa = PBXFileReference; lastKnownFileType = "compiled.mach-o.dylib"; name = libxml2.dylib; path = usr/lib/libxml2.dylib; sourceTree = SDKROOT; };
 		388BDFBC0F8ACDF8004A22FD /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = System/Library/Frameworks/CoreServices.framework; sourceTree = SDKROOT; };
+		3AD5D1FC13F46742002E5B59 /* AQXMLParserInternal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AQXMLParserInternal.h; sourceTree = "<group>"; };
+		3AD5D1FD13F46742002E5B59 /* AQXMLParserInternal.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AQXMLParserInternal.m; sourceTree = "<group>"; };
 		8DD76FA10486AA7600D96B5E /* ParserComparison */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ParserComparison; sourceTree = BUILT_PRODUCTS_DIR; };
 		C6859EA3029092ED04C91782 /* ParserComparison.1 */ = {isa = PBXFileReference; lastKnownFileType = text.man; path = ParserComparison.1; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -106,6 +109,8 @@
 		388BDEFB0F8AAD12004A22FD /* StreamingXMLParser */ = {
 			isa = PBXGroup;
 			children = (
+				3AD5D1FC13F46742002E5B59 /* AQXMLParserInternal.h */,
+				3AD5D1FD13F46742002E5B59 /* AQXMLParserInternal.m */,
 				388BDEFC0F8AAD12004A22FD /* AQXMLParser.h */,
 				388BDEFD0F8AAD12004A22FD /* AQXMLParser.m */,
 				388BDF190F8AC591004A22FD /* AQXMLParserDelegate.h */,
@@ -149,9 +154,16 @@
 /* Begin PBXProject section */
 		08FB7793FE84155DC02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0420;
+			};
 			buildConfigurationList = 1DEB927808733DD40010E9CD /* Build configuration list for PBXProject "ParserComparison" */;
-			compatibilityVersion = "Xcode 3.1";
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
 			hasScannedForEncodings = 1;
+			knownRegions = (
+				en,
+			);
 			mainGroup = 08FB7794FE84155DC02AAC07 /* ParserComparison */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -170,6 +182,7 @@
 				388BDEFE0F8AAD12004A22FD /* AQXMLParser.m in Sources */,
 				388BDF010F8AAD5F004A22FD /* MemoryUsageLogger.m in Sources */,
 				388BDF1B0F8AC591004A22FD /* AQXMLParserDelegate.m in Sources */,
+				3AD5D1FE13F46742002E5B59 /* AQXMLParserInternal.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -182,7 +195,6 @@
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				COPY_PHASE_STRIP = NO;
 				GCC_DYNAMIC_NO_PIC = NO;
-				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
@@ -208,7 +220,8 @@
 		1DEB927908733DD40010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = "$(ARCHS_STANDARD_32_BIT)";
+				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
@@ -216,8 +229,7 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
 				ONLY_ACTIVE_ARCH = YES;
-				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 			};
 			name = Debug;
 		};
@@ -225,13 +237,13 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = "$(ARCHS_STANDARD_32_64_BIT)";
+				CLANG_ENABLE_OBJC_ARC = YES;
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = /usr/include/libxml2;
-				PREBINDING = NO;
-				SDKROOT = macosx10.5;
+				SDKROOT = macosx;
 			};
 			name = Release;
 		};

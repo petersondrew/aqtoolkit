@@ -45,7 +45,7 @@
 
 static CFStringRef _selectorDescription( const void * value )
 {
-    return ( (CFStringRef) [NSStringFromSelector((SEL)value) copy] );
+    return ( (__bridge CFStringRef) [NSStringFromSelector((SEL)value) copy] );
 }
 
 @interface _AQXMLParserSelectorCache : NSObject
@@ -87,12 +87,11 @@ static CFStringRef _selectorDescription( const void * value )
     [[NSNotificationCenter defaultCenter] removeObserver: self];
     CFRelease( _startSelectorCache );
     CFRelease( _endSelectorCache );
-    [super dealloc];
 }
 
 - (SEL) startSelectorForElement: (NSString *) element
 {
-    SEL result = (SEL) CFDictionaryGetValue( _startSelectorCache, element );
+    SEL result = (SEL) CFDictionaryGetValue( _startSelectorCache, (__bridge CFStringRef)element );
     if ( result != NULL )
         return ( result );
     
@@ -115,14 +114,14 @@ static CFStringRef _selectorDescription( const void * value )
 	str = [NSString stringWithFormat: @"start%@WithAttributes:", eSel];
     
     result = NSSelectorFromString( str );
-    CFDictionaryAddValue( _startSelectorCache, element, result );
+    CFDictionaryAddValue( _startSelectorCache, (__bridge CFStringRef)element, (SEL)result );
     
     return ( result );
 }
 
 - (SEL) endSelectorForElement: (NSString *) element
 {
-    SEL result = (SEL) CFDictionaryGetValue( _endSelectorCache, element );
+    SEL result = (SEL) CFDictionaryGetValue( _endSelectorCache, (__bridge CFStringRef)element );
     if ( result != NULL )
         return ( result );
     
@@ -145,7 +144,7 @@ static CFStringRef _selectorDescription( const void * value )
 	str = [NSString stringWithFormat: @"end%@", eSel];
     
     result = NSSelectorFromString( str );
-    CFDictionaryAddValue( _endSelectorCache, element, result );
+    CFDictionaryAddValue( _endSelectorCache, (__bridge CFStringRef)element, result );
     
     return ( result );
 }
@@ -174,15 +173,12 @@ static _AQXMLParserSelectorCache * __selectorCache = nil;
 
 - (void) dealloc
 {
-	[_characters release];
-	[super dealloc];
 }
 
 - (void) parser: (AQXMLParser *) parser didStartElement: (NSString *) elementName
    namespaceURI: (NSString *) namespaceURI qualifiedName: (NSString *) qName
      attributes: (NSDictionary *) attributeDict
 {
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	
 	//NSLog( @"Starting element: %@", elementName );
 	
@@ -195,14 +191,11 @@ static _AQXMLParserSelectorCache * __selectorCache = nil;
     }
 	
     self.characters = nil;
-	
-	[pool drain];
 }
 
 - (void) parser: (AQXMLParser *) parser didEndElement: (NSString *) elementName
    namespaceURI: (NSString *) namespaceURI qualifiedName: (NSString *) qName
 {
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
 	
 	SEL selector = [__selectorCache endSelectorForElement: elementName];
 	
@@ -213,23 +206,18 @@ static _AQXMLParserSelectorCache * __selectorCache = nil;
     }
 	
 	self.characters = nil;
-	
-	[pool drain];
 }
 
 - (void) parser: (AQXMLParser *) parser foundCDATA: (NSData *) CDATABlock
 {
 	NSString * chars = [[NSString alloc] initWithData: CDATABlock encoding: NSUTF8StringEncoding];
     [self parser: parser foundCharacters: chars];
-    [chars release];
 }
 
 - (void) parser: (AQXMLParser *) parser foundCharacters: (NSString *) string
 {
 	if ( string == nil )
         return;
-	
-	NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
     
 	if ( self.characters != nil )
     {
@@ -239,8 +227,6 @@ static _AQXMLParserSelectorCache * __selectorCache = nil;
     {
         self.characters = string;
     }
-	
-	[pool drain];
 }
 
 - (void) parser: (AQXMLParser *) parser parseErrorOccurred: (NSError *) error

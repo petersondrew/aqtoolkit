@@ -61,8 +61,8 @@ extern NSString * const AQXMLParserParsingRunLoopMode;
 
 - (id) initWithData: (NSData *) data;   // creates a stream from the data
 
-@property (NS_NONATOMIC_IPHONEONLY assign) id<AQXMLParserDelegate> __weak delegate;
-@property (NS_NONATOMIC_IPHONEONLY assign) id<AQXMLParserProgressDelegate> __weak progressDelegate;
+@property (NS_NONATOMIC_IPHONEONLY weak) id<AQXMLParserDelegate> delegate;
+@property (NS_NONATOMIC_IPHONEONLY weak) id<AQXMLParserProgressDelegate> progressDelegate;
 
 @property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldProcessNamespaces;
 @property (NS_NONATOMIC_IPHONEONLY assign) BOOL shouldReportNamespacePrefixes;
@@ -71,6 +71,9 @@ extern NSString * const AQXMLParserParsingRunLoopMode;
 
 - (BOOL) parse;
 - (void) abortParsing;
+
+// Because, idk, maybe we want to read from a local file...
+- (void)setExpectedLength:(float)expectedLength;
 
 // asynchronous parsing on the given runloop/mode
 // completionSelector should match the following structure:
@@ -94,12 +97,12 @@ extern NSString * const AQXMLParserParsingRunLoopMode;
 @property (NS_NONATOMIC_IPHONEONLY assign) BOOL debugLogInput;
 @end
 
-@class HTTPMessage;
+//@class HTTPMessage;
 
-@interface AQXMLParser (AQXMLParserHTTPStreamAdditions)
-@property (nonatomic, readonly) HTTPMessage * finalRequest;
-@property (nonatomic, readonly) HTTPMessage * finalResponse;
-@end
+//@interface AQXMLParser (AQXMLParserHTTPStreamAdditions)
+//@property (nonatomic, readonly) HTTPMessage * finalRequest;
+//@property (nonatomic, readonly) HTTPMessage * finalResponse;
+//@end
 
 // parser reports progress as a value between 0.0 and 1.0
 @protocol AQXMLParserProgressDelegate <NSObject>

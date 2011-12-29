@@ -36,6 +36,9 @@
  *
  */
 
+#import <Foundation/Foundation.h>
+#import <netdb.h>		// for gai_strerror()
+
 // weak-link symbols from CoreServices/CFNetwork frameworks
 #pragma weak kCFStreamErrorDomainMach
 #pragma weak kCFStreamErrorDomainNetDB
@@ -48,8 +51,6 @@
 
 // the other domains, and the error codes themselves, are enumerated types & therefore aren't linked
 
-#import <Foundation/Foundation.h>
-#import <netdb.h>		// for gai_strerror()
 
 #if TARGET_OS_IPHONE
 #import <CFNetwork/CFNetwork.h>

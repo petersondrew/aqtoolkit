@@ -157,9 +157,8 @@ static const char * MemorySizeString( mach_vm_size_t size )
     }
     
     NSString * result = [str copy];
-    [str release];
     
-    return ( [[result autorelease] UTF8String] );
+    return ( [result UTF8String] );
 }
 
 #pragma mark -
@@ -193,8 +192,6 @@ static const char * MemorySizeString( mach_vm_size_t size )
 
 - (void) dealloc
 {
-    [set release];
-    [super dealloc];
 }
 
 - (void) endNumber
@@ -222,7 +219,6 @@ static void RunNSDocumentTest( NSURL * url )
                                                                  error: NULL];
     time = CFAbsoluteTimeGetCurrent() - time;
     mach_vm_size_t end = GetProcessMemoryUsage();
-    [doc release];
     
     fprintf( stdout, "  %.02f seconds, peak VM usage: %s\n", time, MemorySizeString(end - start) );
 }
@@ -244,8 +240,6 @@ static void RunNSParserTest( NSURL * url )
     fprintf( stdout, "  Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
     fprintf( stdout, "  %.02f seconds, peak VM usage: %s\n", time, MemorySizeString(delegate.maxVMSize) );
     
-    [delegate release];
-    [parser release];
 }
 
 static NSData * MappedDataFromURL( NSURL * url )
@@ -256,7 +250,6 @@ static NSData * MappedDataFromURL( NSURL * url )
     // download data
     NSData * downloadedData = [[NSData alloc] initWithContentsOfURL: url];
     [downloadedData writeToFile: @"downloaded.xml" atomically: NO];
-    [downloadedData release];
     return ( [[NSData alloc] initWithContentsOfMappedFile: @"downloaded.xml"] );
 }
 
@@ -264,7 +257,6 @@ static void RunMappedNSParserTest( NSURL * url )
 {
     NSData * data = MappedDataFromURL( url );
     NSXMLParser * parser = [[NSXMLParser alloc] initWithData: data];
-    [data release];
     
     NumberParser * delegate = [[NumberParser alloc] init];
     [parser setDelegate: delegate];
@@ -280,8 +272,6 @@ static void RunMappedNSParserTest( NSURL * url )
     fprintf( stdout, "  Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
     fprintf( stdout, "  %.02f seconds, peak VM usage: %s\n", time, MemorySizeString(delegate.maxVMSize) );
     
-    [delegate release];
-    [parser release];
 }
 
 static NSInputStream * StreamFromURL( NSURL * url )
@@ -290,8 +280,8 @@ static NSInputStream * StreamFromURL( NSURL * url )
         return ( [[NSInputStream alloc] initWithFileAtPath: [url path]] );
     
     CFHTTPMessageRef msg = CFHTTPMessageCreateRequest( kCFAllocatorDefault, CFSTR("POST"),
-                                                         (CFURLRef)url, kCFHTTPVersion1_1 );
-    NSInputStream * stream = (NSInputStream *) CFReadStreamCreateForHTTPRequest( kCFAllocatorDefault, msg );
+                                                         (__bridge CFURLRef)url, kCFHTTPVersion1_1 );
+    NSInputStream * stream = (__bridge NSInputStream *) CFReadStreamCreateForHTTPRequest( kCFAllocatorDefault, msg );
     CFRelease( msg );
     
     return ( stream );
@@ -302,7 +292,6 @@ static void RunAQParserTest( NSURL * url )
     NumberParser * delegate = [[NumberParser alloc] init];
     NSInputStream * stream = StreamFromURL( url );  // returns a retained stream
     AQXMLParser * parser = [[AQXMLParser alloc] initWithStream: stream];
-    [stream release];
     
     [parser setDelegate: delegate];
     
@@ -317,8 +306,6 @@ static void RunAQParserTest( NSURL * url )
     fprintf( stdout, "  Parsed %lu numbers\n", (unsigned long)[delegate.set count] );
     fprintf( stdout, "  %.02f seconds, peak VM usage: %s\n", time, MemorySizeString(delegate.maxVMSize) );
     
-    [parser release];
-    [delegate release];
 }
 
 #pragma mark -
@@ -368,8 +355,6 @@ int main (int argc, char * const argv[])
     if ( (fileStr == NULL) && (urlStr == NULL) )
         usage();        // dead call, terminates program
     
-    NSAutoreleasePool * pool = [[NSAutoreleasePool alloc] init];
-    
     // we're going to avoid creating autoreleased objects as much as possible, so we can get them all
     //  deallocated & out of the way asap
     NSURL * url = nil;
@@ -377,20 +362,17 @@ int main (int argc, char * const argv[])
     {
         NSString * str = [[NSString alloc] initWithUTF8String: urlStr];
         url = [NSURL URLWithString: str];
-        [str release];
     }
     else
     {
         NSString * str = [[NSString alloc] initWithUTF8String: fileStr];
         url = [NSURL fileURLWithPath: str];
-        [str release];
     }
     
     if ( ([url isFileURL] == NO) &&
          (([[url scheme] isEqualToString: @"http"] == NO) ||
           ([[url scheme] isEqualToString: @"https"] == NO)) )
     {
-        [pool drain];
         usage();        // dead call, terminates program
     }
 
@@ -413,8 +395,6 @@ int main (int argc, char * const argv[])
             RunAQParserTest( url );
             break;
     }
-    
-    [pool drain];
     
     return ( 0 );
 }
